@@ -1,0 +1,67 @@
+versioning
+    this is a simple code showing how to save and restore files, usually for
+    saving game sessions. this approach is flexible enough that allows to add
+    or remove attributes easily without losing compatibility with older/newer
+    versions.
+
+how does it works
+    this work was inspired and pretty much came out of this article
+    https://handmade.network/p/29/swedish-cubes-for-unity/blog/p/2723-how_media_molecule_does_serialization
+
+tl;dr;
+    when saving, a new file gets created. the first bytes will include the 
+    last version counter. after that, all the attributes to be saved are 
+    written sequentially.
+    when restoring, we simply check which version does the file contains.
+    with this, we check each attribute to know if the version matches to
+    the one where each attribute was included or removed.
+    when a new attribute gets included or removed, the version counter is
+    increased.
+
+example
+    let's say we begin the first version with just a number BAR to be saved.
+    BAR is 42, and thus, the saving file will look something like this:
+
+    042
+
+    0 = version
+    42 = BAR
+
+    when restoring, we open "042", the first number indicates the version
+    of the file, we know it's 0, meaning the first version, and we know that
+    in the first version we included the BAR number, so we restore it as well.
+
+    now we need to add a new attribute, let's say BAZ. BAZ is 24, and so, when
+    saving the file could look like this:
+
+    14224
+
+    1 = version
+    42 = BAR
+    24 = BAZ
+
+    notice how the version counter gets increased every time a new attribute
+    gets included or removed.
+
+    now, let's remove a field, let's say we want to remove BAR. when saving,
+    the file will look like this
+
+    224
+
+    2 = version
+    24 = BAZ
+
+    now, let's say we want to restore a file, but this file will have the
+    version 1, meaning, the BAR attribute is saved, but our current version,
+    meaning, our latest version no longer contains the BAR attribute. luckily,
+    with the version number, we can check and be aware that we have to ignore
+    this attribute.
+    with this, we have safely restore an old version in the latest version of
+    our program. if we tried to save this old version again, the version would
+    be updated to be the latest, meaning, version = 2.
+
+how to test it
+    compile with gcc main.c and then run the executable with
+
+    ./a.out # to restore
+    ./a.out save # to save
