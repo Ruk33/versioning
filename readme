@@ -101,4 +101,19 @@ what about main2.c?
     entire struct. when restoring, we do the same as main.c, we check for 
     the version file, and we restore accordingly, but instead of restoring
     field by field, we can restore "chunks" (v1, v2, etc.) making it
-    way easier and less error prone.
+    way easier and less error prone. you do have to take extra care on
+    not changing any structs used as field.
+
+    struct unit {
+        ...
+        struct {
+            struct animation playing_animation;
+        } v3;
+    };
+
+    you can't make changes to the struct animation.
+
+    to be honest, i'm not sure this is a paticular good approach, since 
+    you will have to use v1, v2, etc. in all your code and have to take
+    extra care not to change structs already used but, it was worth 
+    trying it out.
