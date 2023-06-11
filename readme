@@ -65,3 +65,40 @@ how to test it
 
     ./a.out # to restore
     ./a.out save # to save
+
+what about main2.c?
+    this is an experiment i was trying just because i'm way too lazy to
+    go through each property/field. the basic idea is, group fields
+    and properties in versions.
+
+    so let's say you begin with a struct like:
+
+    struct unit {
+        float x, y;
+    };
+
+    what if we switched the struct to be something like this instead?
+
+    struct unit {
+        struct {
+            float x, y;
+        } v1;
+    };
+
+    with this, we know when were the fields x and y included (it was 
+    in the version 1) what if we need more properties later?
+
+    struct unit {
+        struct {
+            float x, y;
+        } v1;
+        struct {
+            int damage, hp, mp;
+        } v2;
+    };
+
+    you get the idea. when saving, we just save the last version plus the 
+    entire struct. when restoring, we do the same as main.c, we check for 
+    the version file, and we restore accordingly, but instead of restoring
+    field by field, we can restore "chunks" (v1, v2, etc.) making it
+    way easier and less error prone.

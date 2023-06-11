@@ -5,7 +5,7 @@ enum version {
     version_baz,
     version_baz_removed,
     version_lorem,
-
+    
     // don't remove and keep at last.
     version_count,
 };
@@ -40,27 +40,27 @@ void encode(struct foo *src)
 void decode(struct foo *dest)
 {
 #define restore(field, inclusion_version) \
-    if (dest->version >= (inclusion_version)) \
-        fread(&dest->field, sizeof(dest->field), 1, file)
+if (dest->version >= (inclusion_version)) \
+fread(&dest->field, sizeof(dest->field), 1, file)
 #define ignore(type, field, inclusion_version, removed_version) \
-    do { \
-        type field; \
-        if (dest->version >= (inclusion_version) && dest->version < (removed_version)) \
-            fread(&field, sizeof(field), 1, file); \
-    } while (0)
-
+do { \
+type field; \
+if (dest->version >= (inclusion_version) && dest->version < (removed_version)) \
+fread(&field, sizeof(field), 1, file); \
+} while (0)
+    
     FILE *file = fopen("saved", "rb+");
     if (!file) {
         printf("failed to open file.\n");
         return;
     }
     fread(&dest->version, sizeof(dest->version), 1, file);
-
+    
     restore(bar, version_init);
     // restore(baz, version_baz);
     ignore(struct baz, baz, version_baz, version_baz_removed);
     restore(lorem, version_lorem);
-
+    
     fclose(file);
     printf("restored.\n");
 }
@@ -68,7 +68,7 @@ void decode(struct foo *dest)
 int main(int argc, char **argv)
 {
     struct foo foo = {0};
-
+    
     int do_save = argc > 1;
     if (do_save) {
         foo.bar = 23;
