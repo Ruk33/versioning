@@ -39,23 +39,23 @@ void encode(struct foo *src)
 
 void decode(struct foo *dest)
 {
-#define restore(field, inclusion_version) \
-if (dest->version >= (inclusion_version)) \
-fread(&dest->field, sizeof(dest->field), 1, file)
-#define ignore(type, field, inclusion_version, removed_version) \
-do { \
-type field; \
-if (dest->version >= (inclusion_version) && dest->version < (removed_version)) \
-fread(&field, sizeof(field), 1, file); \
-} while (0)
+    #define restore(field, inclusion_version) \
+        if (dest->version >= (inclusion_version)) \
+            fread(&dest->field, sizeof(dest->field), 1, file)
+
+    #define ignore(type, field, inclusion_version, removed_version) \
+        for (type field; dest->version >= (inclusion_version) && dest->version < (removed_version);) { \
+            fread(&field, sizeof(field), 1, file); \
+            break; \
+        }
     
     FILE *file = fopen("saved", "rb+");
     if (!file) {
         printf("failed to open file.\n");
         return;
     }
-    fread(&dest->version, sizeof(dest->version), 1, file);
-    
+
+    restore(version, version_init);
     restore(bar, version_init);
     // restore(baz, version_baz);
     ignore(struct baz, baz, version_baz, version_baz_removed);
